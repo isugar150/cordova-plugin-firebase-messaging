@@ -55,7 +55,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
             </config>
             <pods>
                 <pod name="FirebaseMessaging" spec="$IOS_FIREBASE_POD_VERSION" />
-                <pod name="FirebaseCore" spec="~> 6.6" />
+                <pod name="FirebaseCore" spec="~> 8.8.0" />
             </pods>
         </podspec>
     </platform>
