@@ -1,7 +1,7 @@
 #import "AppDelegate.h"
 
 @import UserNotifications;
-@import FirebaseMessaging;
+@import Firebase;
 
 @interface AppDelegate (FirebaseMessagingPlugin) <FIRMessagingDelegate, UNUserNotificationCenterDelegate>
 
