@@ -9,10 +9,6 @@ ios deployment target: 12.0
 Android: 6.1.2  
 iOS: 6.1.2  
   
-##### cordova-plugin-firebase-analytics  
-Android: 6.1.0  
-iOS: 7.0.5  
-  
 ### Dependency  
 analytics to https://github.com/isugar150/cordova-plugin-firebase-analytics.git  
   
