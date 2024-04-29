@@ -1,3 +1,19 @@
+# Custom
+node: 14.21.3  
+cordova: 11.1.0  
+android target sdk: 32  
+ios deployment target: 12.0  
+  
+[cordova-plugin-firebase-messaging]  
+Android: 6.1.2  
+iOS: 6.1.2  
+  
+analytics to https://github.com/isugar150/cordova-plugin-firebase-analytics.git  
+  
+[cordova-plugin-firebase-analytics]  
+Android: 6.1.0  
+iOS: 7.0.5  
+  
 # Cordova plugin for [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging/)
 [![NPM version][npm-version]][npm-url] [![NPM downloads][npm-downloads]][npm-url] [![NPM total downloads][npm-total-downloads]][npm-url] [![PayPal donate](https://img.shields.io/badge/paypal-donate-ff69b4?logo=paypal)][donate-url] [![Twitter][twitter-follow]][twitter-url]
 
