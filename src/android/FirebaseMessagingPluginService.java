@@ -87,6 +87,19 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
                 showAlert(notification);
             }
         }
+
+        RemoteMessage.Notification notification = remoteMessage.getNotification();
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getNotificationChannel(notification))
+                .setSound(getNotificationSound(notification.getSound()))
+                .setContentTitle(notification.getTitle())
+                .setContentText(notification.getBody())
+                .setGroup(notification.getTag())
+                .setSmallIcon(defaultNotificationIcon)
+                .setColor(defaultNotificationColor)
+                // must set priority to make sure forceShow works properly
+                .setPriority(1);
+
+        notificationManager.notify(0, builder.build());
     }
 
     private void showAlert(RemoteMessage.Notification notification) {
