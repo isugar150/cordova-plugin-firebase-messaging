@@ -21,6 +21,8 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import static android.content.ContentResolver.SCHEME_ANDROID_RESOURCE;
 
+import java.util.Random;
+
 
 public class FirebaseMessagingPluginService extends FirebaseMessagingService {
     private static final String TAG = "FCMPluginService";
