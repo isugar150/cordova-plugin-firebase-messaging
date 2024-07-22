@@ -2,6 +2,7 @@ package by.chemerisuk.cordova.firebase;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -91,20 +92,42 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
         }
 
         Random random = new Random();
-        int id = random.nextInt(1000000); // 0에서 999999 사이의 랜덤 숫자 생성
+        int id = random.nextInt(1000000);
 
         RemoteMessage.Notification notification = remoteMessage.getNotification();
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getNotificationChannel(notification))
-                .setSound(getNotificationSound(notification.getSound()))
-                .setContentTitle(notification.getTitle())
-                .setContentText(notification.getBody())
-                .setGroup(notification.getTag())
-                .setSmallIcon(defaultNotificationIcon)
-                .setColor(defaultNotificationColor)
-                // must set priority to make sure forceShow works properly
-                .setPriority(1);
+        if (notification != null) {
+            String navigateToUrl = remoteMessage.getData().get("navigateTo");
 
-        notificationManager.notify(id, builder.build());
+            PendingIntent pendingIntent = null;
+            if (navigateToUrl != null && !navigateToUrl.equals("")) {
+                Intent urlIntent = new Intent(Intent.ACTION_VIEW);
+                urlIntent.setData(Uri.parse(navigateToUrl));
+                urlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
+                int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    flags |= PendingIntent.FLAG_IMMUTABLE;
+                }
+
+                pendingIntent = PendingIntent.getActivity(this, 0, urlIntent, flags);
+            }
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getNotificationChannel(notification))
+                    .setSound(getNotificationSound(notification.getSound()))
+                    .setContentTitle(notification.getTitle())
+                    .setContentText(notification.getBody())
+                    .setGroup(notification.getTag())
+                    .setSmallIcon(defaultNotificationIcon)
+                    .setColor(defaultNotificationColor)
+                    .setPriority(1)
+                    .setAutoCancel(true);
+
+            if (pendingIntent != null) {
+                builder.setContentIntent(pendingIntent);
+            }
+
+            notificationManager.notify(id, builder.build());
+        }
     }
 
     private void showAlert(RemoteMessage.Notification notification) {
