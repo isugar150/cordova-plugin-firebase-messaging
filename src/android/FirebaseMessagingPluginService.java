@@ -88,6 +88,9 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
             }
         }
 
+        Random random = new Random();
+        int id = random.nextInt(1000000); // 0에서 999999 사이의 랜덤 숫자 생성
+
         RemoteMessage.Notification notification = remoteMessage.getNotification();
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getNotificationChannel(notification))
                 .setSound(getNotificationSound(notification.getSound()))
@@ -99,7 +102,7 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
                 // must set priority to make sure forceShow works properly
                 .setPriority(1);
 
-        notificationManager.notify(0, builder.build());
+        notificationManager.notify(id, builder.build());
     }
 
     private void showAlert(RemoteMessage.Notification notification) {
