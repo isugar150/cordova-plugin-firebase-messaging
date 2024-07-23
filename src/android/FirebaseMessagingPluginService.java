@@ -1,7 +1,9 @@
 package by.chemerisuk.cordova.firebase;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -21,6 +23,9 @@ import com.google.firebase.messaging.RemoteMessage;
 
 import static android.content.ContentResolver.SCHEME_ANDROID_RESOURCE;
 
+import java.util.Random;
+import ai.riskzero.sisul3.manager.MainActivity;
+
 
 public class FirebaseMessagingPluginService extends FirebaseMessagingService {
     private static final String TAG = "FCMPluginService";
@@ -32,6 +37,7 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
     public final static String NOTIFICATION_ICON_KEY = "com.google.firebase.messaging.default_notification_icon";
     public final static String NOTIFICATION_COLOR_KEY = "com.google.firebase.messaging.default_notification_color";
     public final static String NOTIFICATION_CHANNEL_KEY = "com.google.firebase.messaging.default_notification_channel_id";
+    public static final String EXTRA_NAVIGATE_TO = "by.chemerisuk.cordova.firebase.EXTRA_NAVIGATE_TO";
 
     private LocalBroadcastManager broadcastManager;
     private NotificationManager notificationManager;
@@ -58,8 +64,12 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel defaultChannel = notificationManager.getNotificationChannel(defaultNotificationChannel);
             if (defaultChannel == null) {
-                notificationManager.createNotificationChannel(
-                        new NotificationChannel(defaultNotificationChannel, "Firebase", NotificationManager.IMPORTANCE_HIGH));
+                NotificationChannel channel = new NotificationChannel(defaultNotificationChannel, "Firebase", NotificationManager.IMPORTANCE_HIGH);
+                channel.setDescription("Firebase Notifications");
+                channel.enableLights(true);
+                channel.enableVibration(true);
+                channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+                notificationManager.createNotificationChannel(channel);
             }
         }
     }
@@ -75,6 +85,7 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
+        Log.d(TAG, "Received message: " + remoteMessage.getData());
         FirebaseMessagingPlugin.sendNotification(remoteMessage);
 
         Intent intent = new Intent(ACTION_FCM_MESSAGE);
@@ -84,12 +95,33 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
         if (FirebaseMessagingPlugin.isForceShow()) {
             RemoteMessage.Notification notification = remoteMessage.getNotification();
             if (notification != null) {
-                showAlert(notification);
+                String navigateToUrl = remoteMessage.getData().get("navigateTo");
+                showAlert(notification, navigateToUrl);
             }
         }
     }
 
-    private void showAlert(RemoteMessage.Notification notification) {
+    private void showAlert(RemoteMessage.Notification notification, String navigateToUrl) {
+        Random random = new Random();
+        int id = random.nextInt(1000000);
+
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (navigateToUrl != null && !navigateToUrl.isEmpty()) {
+            Uri uri = Uri.parse(navigateToUrl);
+            String path = uri.getPath();
+            if (path != null && !path.isEmpty()) {
+                intent.putExtra(EXTRA_NAVIGATE_TO, path);
+            }
+        }
+
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, id, intent, flags);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, getNotificationChannel(notification))
                 .setSound(getNotificationSound(notification.getSound()))
                 .setContentTitle(notification.getTitle())
@@ -97,17 +129,18 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
                 .setGroup(notification.getTag())
                 .setSmallIcon(defaultNotificationIcon)
                 .setColor(defaultNotificationColor)
-                // must set priority to make sure forceShow works properly
-                .setPriority(1);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setFullScreenIntent(pendingIntent, true);
 
-        notificationManager.notify(0, builder.build());
-        // dismiss notification to hide icon from status bar automatically
-        new Handler(getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                notificationManager.cancel(0);
-            }
-        }, 3000);
+        Notification notif = builder.build();
+
+        notificationManager.notify(id, notif);
+
+        Log.d(TAG, "Notification shown with ID: " + id + ", URL: " + navigateToUrl);
     }
 
     private String getNotificationChannel(RemoteMessage.Notification notification) {
