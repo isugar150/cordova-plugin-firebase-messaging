@@ -18,6 +18,7 @@
 - (void)sendToken:(NSString*)fcmToken;
 - (void)sendNotification:(NSDictionary*)userInfo;
 - (void)sendBackgroundNotification:(NSDictionary*)userInfo;
+- (void)handleOpenURL:(NSNotification*)notification;
 
 @property (nonatomic, copy) NSString* notificationCallbackId;
 @property (nonatomic, copy) NSString* backgroundNotificationCallbackId;
