@@ -13,6 +13,17 @@
     if(![FIRApp defaultApp]) {
         [FIRApp configure];
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleOpenURL:) name:CDVPluginHandleOpenURLNotification object:nil];
+}
+
+- (void)handleOpenURL:(NSNotification*)notification {
+    AppDelegate *appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
+    [appDelegate applicationDidBecomeActive:[UIApplication sharedApplication]];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:CDVPluginHandleOpenURLNotification object:nil];
 }
 
 - (void)requestPermission:(CDVInvokedUrlCommand *)command {
