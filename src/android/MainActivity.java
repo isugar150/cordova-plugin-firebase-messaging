@@ -20,6 +20,8 @@
 package ai.riskzero.sisul3.manager;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import org.apache.cordova.*;
 import android.content.Intent;
 import by.chemerisuk.cordova.firebase.FirebaseMessagingPluginService;
@@ -27,10 +29,14 @@ import android.util.Log;
 
 public class MainActivity extends CordovaActivity
 {
+    private static final String TAG = "MainActivity";
+    private String pendingNavigationUrl = "http://localhost/#";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate called");
 
         // enable Cordova apps to be started in the background
         Bundle extras = getIntent().getExtras();
@@ -39,23 +45,40 @@ public class MainActivity extends CordovaActivity
         }
 
         // Set by <content src="index.html" /> in config.xml
-        loadUrl(launchUrl);
-//        handleIntent(getIntent());
+//        loadUrl(launchUrl);
+        handleIntent(getIntent());
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent called");
+//        setIntent(intent);
         handleIntent(intent);
     }
 
     private void handleIntent(Intent intent) {
+        if (intent.getExtras() != null) {
+            for (String key : intent.getExtras().keySet()) {
+                Object value = intent.getExtras().get(key);
+                Log.d("data ", "Key: " + key + " Value: " + value);
+            }
+        }
         if (intent.hasExtra(FirebaseMessagingPluginService.EXTRA_NAVIGATE_TO)) {
             String url = intent.getStringExtra(FirebaseMessagingPluginService.EXTRA_NAVIGATE_TO);
             Log.d("MainActivity.url: ", url);
             if (url != null && !url.isEmpty()) {
                 loadUrl("http://localhost/#" + url);
             }
+        } else if (intent.getExtras() != null) {
+            String url = intent.getExtras().get("navigateTo").toString();
+            Log.d("MainActivity.url: ", url);
+            if (url != null && !url.isEmpty()) {
+                loadUrl(launchUrl);
+                loadUrl("http://localhost/#" + url);
+            }
+        } else {
+            loadUrl(launchUrl);
         }
     }
 }
