@@ -65,17 +65,17 @@ public class MainActivity extends CordovaActivity
             }
         }
         if (intent.hasExtra(FirebaseMessagingPluginService.EXTRA_NAVIGATE_TO)) {
-            String url = intent.getStringExtra(FirebaseMessagingPluginService.EXTRA_NAVIGATE_TO);
+            String url = intent.getExtras().get(FirebaseMessagingPluginService.EXTRA_NAVIGATE_TO).toString();
             Log.d("MainActivity.url: ", url);
             if (url != null && !url.isEmpty()) {
-                loadUrl("http://localhost/#" + url);
+                /// loadUrl( "javascript:window.location.href='#" +url+"'");
+             loadUrl("javascript:setTimeout(function() { window.location.hash = '"+url+"'; }, 100);");
             }
         } else if (intent.getExtras() != null) {
             String url = intent.getExtras().get("navigateTo").toString();
             Log.d("MainActivity.url: ", url);
             if (url != null && !url.isEmpty()) {
-                loadUrl(launchUrl);
-                loadUrl("http://localhost/#" + url);
+                 loadUrl("http://localhost/#" + url);
             }
         } else {
             loadUrl(launchUrl);
