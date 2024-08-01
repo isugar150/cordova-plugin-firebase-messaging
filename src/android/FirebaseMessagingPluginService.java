@@ -108,11 +108,12 @@ public class FirebaseMessagingPluginService extends FirebaseMessagingService {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if (navigateToUrl != null && !navigateToUrl.isEmpty()) {
-            Uri uri = Uri.parse(navigateToUrl);
-            String path = uri.getPath();
-            if (path != null && !path.isEmpty()) {
-                intent.putExtra(EXTRA_NAVIGATE_TO, path);
-            }
+            intent.putExtra(EXTRA_NAVIGATE_TO, navigateToUrl);
+            // Uri uri = Uri.parse(navigateToUrl);
+            // String path = uri.getPath();
+            // if (path != null && !path.isEmpty()) {
+            //     intent.putExtra(EXTRA_NAVIGATE_TO, path);
+            // }
         }
 
         int flags = PendingIntent.FLAG_UPDATE_CURRENT;
